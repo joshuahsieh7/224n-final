@@ -8,6 +8,9 @@ class CausalSelfAttention(nn.Module):
   def __init__(self, config):
     super().__init__()
 
+#    print("Num heads: " + str(config.num_attention_heads))
+#    print("Hidden size: " + str(config.hidden_size))
+
     self.num_attention_heads = config.num_attention_heads
     self.attention_head_size = int(config.hidden_size / config.num_attention_heads)
     self.all_head_size = self.num_attention_heads * self.attention_head_size
@@ -16,6 +19,7 @@ class CausalSelfAttention(nn.Module):
     self.query = nn.Linear(config.hidden_size, self.all_head_size)
     self.key = nn.Linear(config.hidden_size, self.all_head_size)
     self.value = nn.Linear(config.hidden_size, self.all_head_size)
+    
     # This dropout is applied to normalized attention scores following the original
     # implementation of transformer. Although it is a bit unusual, we empirically
     # observe that it yields better performance.
@@ -32,8 +36,26 @@ class CausalSelfAttention(nn.Module):
     return proj
 
   def attention(self, key, query, value, attention_mask):
-
     ### YOUR CODE HERE
+    
+    attention_score = torch.matmul(query, key.transpose(-1, -2))
+    attention_score = attention_score + attention_mask
+    
+    causal_mask = torch.full((key.shape[-2], key.shape[-2]), -1000)
+    causal_mask = torch.triu(causal_mask, diagonal = 1)
+
+    attention_score = attention_score + causal_mask
+    attention_score = attention_score / self.attention_head_size ** 0.5
+
+    attention_weight = nn.functional.softmax(attention_score, dim=-1)
+    attention_weight = self.dropout(attention_weight)
+    attention_value = torch.matmul(attention_weight, value)
+
+    attention_value = attention_value.transpose(1, 2).contiguous()
+    attention_value = attention_value.view(attention_value.shape[0], attention_value.shape[1], self.all_head_size)
+    
+    return attention_value
+  
     raise NotImplementedError
 
 
