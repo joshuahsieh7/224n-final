@@ -38,14 +38,14 @@ class CausalSelfAttention(nn.Module):
   def attention(self, key, query, value, attention_mask):
     ### YOUR CODE HERE
     
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
     attention_score = torch.matmul(query, key.transpose(-1, -2))
     attention_score = attention_score + attention_mask
-    
+
     causal_mask = torch.full((key.shape[-2], key.shape[-2]), -1000)
     causal_mask = torch.triu(causal_mask, diagonal = 1)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    causal_mask = causal_mask.to(device)
-
+    
     attention_score = attention_score + causal_mask
     attention_score = attention_score / self.attention_head_size ** 0.5
 
@@ -55,7 +55,11 @@ class CausalSelfAttention(nn.Module):
 
     attention_value = attention_value.transpose(1, 2).contiguous()
     attention_value = attention_value.view(attention_value.shape[0], attention_value.shape[1], self.all_head_size)
-    
+   
+    #causal_mask = causal_mask.to(device)
+    #attention_score = attention_score.to(device)
+    #attention_weight = attention_weight.to(device)
+    #attention_value = attention_value.to(device)
     return attention_value
   
     raise NotImplementedError
