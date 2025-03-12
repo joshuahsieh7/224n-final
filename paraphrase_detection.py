@@ -75,7 +75,6 @@ class ParaphraseGPT(nn.Module):
     gpt_output = self.gpt(input_ids, attention_mask)
     last_output = gpt_output['last_token']
     return self.gpt.hidden_state_to_token(last_output)
-    raise NotImplementedError 
 
 
 

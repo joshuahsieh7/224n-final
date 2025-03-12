@@ -43,6 +43,8 @@ class CausalSelfAttention(nn.Module):
     
     causal_mask = torch.full((key.shape[-2], key.shape[-2]), -1000)
     causal_mask = torch.triu(causal_mask, diagonal = 1)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    causal_mask = causal_mask.to(device)
 
     attention_score = attention_score + causal_mask
     attention_score = attention_score / self.attention_head_size ** 0.5
