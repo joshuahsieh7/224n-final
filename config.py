@@ -192,7 +192,7 @@ class GPT2Config(PretrainedConfig):
           self,
           vocab_size=50257,
           hidden_size=768,
-          num_hidden_layers=12,
+          num_hidden_layers=15,
           num_attention_heads=12,
           intermediate_size=3072,
           hidden_act="gelu",
