@@ -48,7 +48,8 @@ class SonnetGPT(nn.Module):
 
   def __init__(self, args):
     super().__init__()
-    self.gpt = GPT2Model.from_pretrained(model=args.model_size, d=args.d, l=15, num_heads=args.num_heads)
+    self.gpt = GPT2Model.from_pretrained(model=args.model_size, d=args.d, l=args.l, num_heads=args.num_heads)
+    print(args.l)
 #    self.gpt = OpenAIGPT2Model.from_pretrained("gpt2")   
 #    peft_config = LoraConfig(
 #      task_type=TaskType.SEQ_2_SEQ_LM, inference_mode=False, r=8, lora_alpha=32, lora_dropout=0.1
@@ -160,6 +161,7 @@ def train(args):
   optimizer = AdamW(model.parameters(), lr=lr)
 
   # Run for the specified number of epochs.
+  prev_loss = 1000000  
   for epoch in range(args.epochs):
     model.train()
     train_loss = 0
@@ -193,6 +195,9 @@ def train(args):
       print(f'{batch[1]}{output[1]}\n\n')
 
     # TODO: consider a stopping condition to prevent overfitting on the small dataset of sonnets.
+    if prev_loss - train_loss < 0.05:
+        break
+    prev_loss = train_loss
     save_model(model, optimizer, args, f'{epoch}_{args.filepath}')
 
 
@@ -202,7 +207,7 @@ def generate_submission_sonnets(args):
   saved = torch.load(f'{args.epochs-1}_{args.filepath}', weights_only=False)
 
   model = SonnetGPT(saved['args'])
-  model.load_state_dict(saved['model'])
+  model.load_state_dict(saved['model'], strict = False)
   model = model.to(device)
   model.eval()
 
