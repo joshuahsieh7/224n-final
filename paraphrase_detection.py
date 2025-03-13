@@ -22,7 +22,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from datasets import (
+from datasets1 import (
   ParaphraseDetectionDataset,
   ParaphraseDetectionTestDataset,
   load_paraphrase_data
@@ -157,7 +157,7 @@ def test(args):
   saved = torch.load(args.filepath)
 
   model = ParaphraseGPT(saved['args'])
-  model.load_state_dict(saved['model'])
+  model.load_state_dict(saved['model'], strict = False)
   model = model.to(device)
   model.eval()
   print(f"Loaded model to test from {args.filepath}")

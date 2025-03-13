@@ -19,7 +19,7 @@ def test_gpt2(model_size='gpt2'):
 
   # PEFT
   peft_config = LoraConfig(
-    task_type=TaskType.SEQ_2_SEQ_LM, inference_mode=False, r=8, lora_alpha=32, lora_dropout=0.1
+    task_type=TaskType.CAUSAL_LM, inference_mode=True, r=8, lora_alpha=32, lora_dropout=0.1
   )
   model = get_peft_model(openai_model, peft_config)
   model.print_trainable_parameters()
