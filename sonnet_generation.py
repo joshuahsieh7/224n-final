@@ -18,7 +18,7 @@ from peft import get_peft_config, get_peft_model, LoraConfig, TaskType
 from torch import nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-from transformers import GPT2Tokenizer
+from transformers import GPT2Tokenizer, AutoModelForCausalLM
 from einops import rearrange
 from transformers import GPT2Model as OpenAIGPT2Model
 
@@ -48,15 +48,7 @@ class SonnetGPT(nn.Module):
 
   def __init__(self, args):
     super().__init__()
-    self.gpt = GPT2Model.from_pretrained(model=args.model_size, d=args.d, l=args.l, num_heads=args.num_heads)
-    print(args.l)
-#    self.gpt = OpenAIGPT2Model.from_pretrained("gpt2")   
-#    peft_config = LoraConfig(
-#      task_type=TaskType.SEQ_2_SEQ_LM, inference_mode=False, r=8, lora_alpha=32, lora_dropout=0.1
-#    )
-#    self.gpt = get_peft_model(self.gpt, peft_config)
-#    self.gpt.print_trainable_parameters()
-
+    self.gpt = AutoModelForCausalLM.from_pretrained(args.model_size)
     self.tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
     self.tokenizer.pad_token = self.tokenizer.eos_token
 
@@ -71,7 +63,7 @@ class SonnetGPT(nn.Module):
     not just the distribution over next tokens for the last token!
     """
     ### YOUR CODE HERE
-    gpt_output = self.gpt(input_ids, attention_mask)
+    gpt_output = self.gpt(input_ids, attention_mask, output_hidden_states = True)
     last_output = gpt_output['last_hidden_state']
     return self.gpt.hidden_state_to_token(last_output)
 
