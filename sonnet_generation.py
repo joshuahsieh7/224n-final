@@ -53,7 +53,7 @@ class SonnetGPT(nn.Module):
     self.gpt = GPT2Model.from_pretrained(model=args.model_size, d=args.d, l=args.l, num_heads=args.num_heads)
     self.tokenizer = tokenizer = AutoTokenizer.from_pretrained("facebook/opt-350m") #GPT2Tokenizer.from_pretrained('gpt2')
     self.tokenizer.pad_token = self.tokenizer.eos_token
-
+    self.gpt.print_trainable_parameters()
     # By default, fine-tune the full model. TODO: this is maybe not idea.
     for param in self.gpt.parameters():
       param.requires_grad = True
@@ -67,6 +67,7 @@ class SonnetGPT(nn.Module):
     ### YOUR CODE HERE
     gpt_output = self.gpt(input_ids, attention_mask)
     last_output = gpt_output["last_hidden_state"]
+    print(self.gpt.hidden_state_to_token(last_output).shape)
     return self.gpt.hidden_state_to_token(last_output)
 
 
@@ -181,13 +182,14 @@ def train(args):
 
     train_loss = train_loss / num_batches
     print(f"Epoch {epoch}: train loss :: {train_loss :.3f}.")
+    '''
     print('Generating several output sonnets...')
     model.eval()
     for batch in held_out_sonnet_dataset:
       encoding = model.tokenizer(batch[1], return_tensors='pt', padding=True, truncation=True).to(device)
       output = model.generate(encoding['input_ids'], temperature=args.temperature, top_p=args.top_p)
       print(f'{batch[1]}{output[1]}\n\n')
-
+    '''
     # TODO: consider a stopping condition to prevent overfitting on the small dataset of sonnets.
     if epoch == 7:
         break
