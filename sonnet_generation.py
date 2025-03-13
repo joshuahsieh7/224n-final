@@ -155,6 +155,7 @@ def train(args):
   optimizer = AdamW(model.parameters(), lr=lr)
 
   # Run for the specified number of epochs.
+  prev_loss = 1000000  
   for epoch in range(args.epochs):
     model.train()
     train_loss = 0
@@ -188,6 +189,9 @@ def train(args):
       print(f'{batch[1]}{output[1]}\n\n')
 
     # TODO: consider a stopping condition to prevent overfitting on the small dataset of sonnets.
+    if epoch == 7:
+        break
+    prev_loss = train_loss
     save_model(model, optimizer, args, f'{epoch}_{args.filepath}')
 
 
@@ -197,6 +201,7 @@ def generate_submission_sonnets(args):
   saved = torch.load(f'{args.epochs-1}_{args.filepath}', weights_only=False)
 
   model = SonnetGPT(saved['args'])
+  model.load_state_dict(saved['model'], strict = False)
   model.load_state_dict(saved['model'], strict = False)
   model = model.to(device)
   model.eval()
