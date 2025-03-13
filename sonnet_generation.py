@@ -23,7 +23,7 @@ from einops import rearrange
 from transformers import GPT2Model as OpenAIGPT2Model
 import types
 
-from datasets1 import (
+from datasets import (
   SonnetsDataset,
 )
 from models.gpt2 import GPT2Model
