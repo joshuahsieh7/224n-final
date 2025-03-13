@@ -195,7 +195,7 @@ def train(args):
       print(f'{batch[1]}{output[1]}\n\n')
 
     # TODO: consider a stopping condition to prevent overfitting on the small dataset of sonnets.
-    if prev_loss - train_loss < 0.05:
+    if epoch == 7:
         break
     prev_loss = train_loss
     save_model(model, optimizer, args, f'{epoch}_{args.filepath}')
