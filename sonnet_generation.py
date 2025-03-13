@@ -14,15 +14,16 @@ import torch
 import numpy as np
 import torch.nn.functional as F
 
-from peft import get_peft_config, get_peft_model, LoraConfig, TaskType
+from peft import get_peft_config, get_peft_model, LoraConfig, TaskType, AutoPeftModelForCausalLM
 from torch import nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-from transformers import GPT2Tokenizer
+from transformers import GPT2Tokenizer, AutoModelForCausalLM, AutoTokenizer
 from einops import rearrange
 from transformers import GPT2Model as OpenAIGPT2Model
+import types
 
-from datasets import (
+from datasets1 import (
   SonnetsDataset,
 )
 from models.gpt2 import GPT2Model
@@ -48,15 +49,9 @@ class SonnetGPT(nn.Module):
 
   def __init__(self, args):
     super().__init__()
-    self.gpt = GPT2Model.from_pretrained(model=args.model_size, d=args.d, l=15, num_heads=args.num_heads)
-#    self.gpt = OpenAIGPT2Model.from_pretrained("gpt2")   
-#    peft_config = LoraConfig(
-#      task_type=TaskType.SEQ_2_SEQ_LM, inference_mode=False, r=8, lora_alpha=32, lora_dropout=0.1
-#    )
-#    self.gpt = get_peft_model(self.gpt, peft_config)
-#    self.gpt.print_trainable_parameters()
 
-    self.tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+    self.gpt = GPT2Model.from_pretrained(model=args.model_size, d=args.d, l=args.l, num_heads=args.num_heads)
+    self.tokenizer = tokenizer = AutoTokenizer.from_pretrained("facebook/opt-350m") #GPT2Tokenizer.from_pretrained('gpt2')
     self.tokenizer.pad_token = self.tokenizer.eos_token
 
     # By default, fine-tune the full model. TODO: this is maybe not idea.
@@ -71,7 +66,7 @@ class SonnetGPT(nn.Module):
     """
     ### YOUR CODE HERE
     gpt_output = self.gpt(input_ids, attention_mask)
-    last_output = gpt_output['last_hidden_state']
+    last_output = gpt_output["last_hidden_state"]
     return self.gpt.hidden_state_to_token(last_output)
 
 
@@ -202,7 +197,7 @@ def generate_submission_sonnets(args):
   saved = torch.load(f'{args.epochs-1}_{args.filepath}', weights_only=False)
 
   model = SonnetGPT(saved['args'])
-  model.load_state_dict(saved['model'])
+  model.load_state_dict(saved['model'], strict = False)
   model = model.to(device)
   model.eval()
 
