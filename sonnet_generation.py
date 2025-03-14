@@ -18,11 +18,8 @@ from peft import get_peft_config, get_peft_model, LoraConfig, TaskType, AutoPeft
 from torch import nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-<<<<<<< HEAD
-from transformers import GPT2Tokenizer, AutoModelForCausalLM
-=======
 from transformers import GPT2Tokenizer, AutoModelForCausalLM, AutoTokenizer
->>>>>>> 8feae17006dadfb9ee6c7bf6aa6edf4e9f7e34de
+
 from einops import rearrange
 from transformers import GPT2Model as OpenAIGPT2Model
 import types
@@ -53,16 +50,9 @@ class SonnetGPT(nn.Module):
 
   def __init__(self, args):
     super().__init__()
-<<<<<<< HEAD
-    self.gpt = AutoModelForCausalLM.from_pretrained(args.model_size)
+    self.gpt = GPT2Model.from_pretrained(args.model_size)
     self.tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
-=======
-
-    self.gpt = GPT2Model.from_pretrained(model=args.model_size, d=args.d, l=args.l, num_heads=args.num_heads)
-    self.tokenizer = tokenizer = AutoTokenizer.from_pretrained("facebook/opt-350m") #GPT2Tokenizer.from_pretrained('gpt2')
->>>>>>> 8feae17006dadfb9ee6c7bf6aa6edf4e9f7e34de
     self.tokenizer.pad_token = self.tokenizer.eos_token
-    self.gpt.print_trainable_parameters()
     # By default, fine-tune the full model. TODO: this is maybe not idea.
     for param in self.gpt.parameters():
       param.requires_grad = True
@@ -74,13 +64,8 @@ class SonnetGPT(nn.Module):
     not just the distribution over next tokens for the last token!
     """
     ### YOUR CODE HERE
-<<<<<<< HEAD
-    gpt_output = self.gpt(input_ids, attention_mask, output_hidden_states = True)
-    last_output = gpt_output['last_hidden_state']
-=======
     gpt_output = self.gpt(input_ids, attention_mask)
-    last_output = gpt_output["last_hidden_state"]
-    print(self.gpt.hidden_state_to_token(last_output).shape)
+    last_output = gpt_output['last_hidden_state']
     return self.gpt.hidden_state_to_token(last_output)
 
 
