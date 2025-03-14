@@ -50,13 +50,8 @@ class SonnetGPT(nn.Module):
 
   def __init__(self, args):
     super().__init__()
-<<<<<<< HEAD
-    self.tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
     self.gpt = GPT2Model.from_pretrained(model=args.model_size, d=args.d, l=args.l, num_heads=args.num_heads)
-=======
-    self.gpt = GPT2Model.from_pretrained(args.model_size)
     self.tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
->>>>>>> 9e7a25fec56f8e0aef046602f253e76f60de18bc
     self.tokenizer.pad_token = self.tokenizer.eos_token
     # By default, fine-tune the full model. TODO: this is maybe not idea.
     for param in self.gpt.parameters():
@@ -70,11 +65,7 @@ class SonnetGPT(nn.Module):
     """
     ### YOUR CODE HERE
     gpt_output = self.gpt(input_ids, attention_mask)
-<<<<<<< HEAD
-    last_output = gpt_output["last_hidden_state"]
-=======
     last_output = gpt_output['last_hidden_state']
->>>>>>> 9e7a25fec56f8e0aef046602f253e76f60de18bc
     return self.gpt.hidden_state_to_token(last_output)
 
 
